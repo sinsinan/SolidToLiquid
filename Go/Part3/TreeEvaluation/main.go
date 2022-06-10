@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"p1/parser"
+	"SolidToLiquid/parser"
 )
 
 func main() {
 	parser := parser.ConstructParser()
-	fmt.Println(parser.ParseExpression("2*3+4"))
+	fmt.Println(parser.EvaluateExpression("2*3+4"))
 }

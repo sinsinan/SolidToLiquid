@@ -7,8 +7,9 @@ package parser
 // factor -> Number | (expr) | {+|-} factor
 
 import (
-	"SolidToLiquid/lexer"
 	expressions "SolidToLiquid/expr"
+	"SolidToLiquid/lexer"
+	"SolidToLiquid/visitor"
 )
 
 type RDParser struct {
@@ -30,7 +31,7 @@ func (parser *RDParser) EvaluateExpression(exp string) int {
 		panic("Error: parsing exited before end")
 	}
 
-	return expr.Evaluate()
+	return visitor.Visit(expr)
 }
 
 func (parser *RDParser) expr() expressions.IExpr {
