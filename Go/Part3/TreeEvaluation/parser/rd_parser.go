@@ -7,9 +7,8 @@ package parser
 // factor -> Number | (expr) | {+|-} factor
 
 import (
-	expressions "SolidToLiquid/expr"
+	compositevisitor "SolidToLiquid/compositevisitor"
 	"SolidToLiquid/lexer"
-	"SolidToLiquid/visitor"
 )
 
 type RDParser struct {
@@ -31,41 +30,41 @@ func (parser *RDParser) EvaluateExpression(exp string) int {
 		panic("Error: parsing exited before end")
 	}
 
-	return visitor.Visit(expr)
+	return expr.Accept(compositevisitor.ConstructExprVisitor())
 }
 
-func (parser *RDParser) expr() expressions.IExpr {
+func (parser *RDParser) expr() compositevisitor.IExpr {
 	expr := parser.term()
 	if parser.currentToken == lexer.TOK_SUB || parser.currentToken == lexer.TOK_PLUS {
 		op := parser.currentToken
 		parser.getToken()
 		expr2 := parser.expr()
-		return expressions.ConstructBinaryExpr(expr, expr2, op)
+		return compositevisitor.ConstructBinaryExpr(expr, expr2, op)
 	}
 	return expr
 }
 
-func (parser *RDParser) term() expressions.IExpr {
+func (parser *RDParser) term() compositevisitor.IExpr {
 	expr := parser.factor()
 	if parser.currentToken == lexer.TOK_MUL || parser.currentToken == lexer.TOK_DIV {
 		op := parser.currentToken
 		parser.getToken()
 		expr2 := parser.term()
-		return expressions.ConstructBinaryExpr(expr, expr2, op)
+		return compositevisitor.ConstructBinaryExpr(expr, expr2, op)
 	}
 	return expr
 }
 
-func (parser *RDParser) factor() expressions.IExpr {
+func (parser *RDParser) factor() compositevisitor.IExpr {
 	if parser.currentToken == lexer.TOK_NUM {
-		expr := expressions.ConstructNumericConstant(parser.lexer.GetNumber())
+		expr := compositevisitor.ConstructNumericConstant(parser.lexer.GetNumber())
 		parser.getToken()
 		return expr
 	} else if parser.currentToken == lexer.TOK_PLUS || parser.currentToken == lexer.TOK_SUB {
 		op := parser.currentToken
 		parser.getToken()
 		expr := parser.factor()
-		return expressions.ConstructUnaryExpr(expr, op)
+		return compositevisitor.ConstructUnaryExpr(expr, op)
 	} else if parser.currentToken == lexer.TOK_OPAREN {
 		parser.getToken()
 		expr := parser.expr()
